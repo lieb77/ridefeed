@@ -18,7 +18,7 @@ use Drupal\ridefeed\RideFeed;
 /**
  * Provides hook implementations for the PDS Sync module.
  */
-class PdsSyncHooks {
+class RideFeedHooks {
 
     /**
      * Constructs a new PdsSyncHooks instance.

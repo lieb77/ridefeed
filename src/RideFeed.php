@@ -8,7 +8,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\node\NodeInterface;
-use Drupal\atproto_client\AtprotoClient;
+use Drupal\atproto_client\Client\AtprotoClient;
 
 /**
  * Manages Bluesky timeline posts, syndication entities, and webmention backfeed.
