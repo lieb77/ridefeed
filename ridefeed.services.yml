@@ -1,0 +1,24 @@
+services:
+  
+  logger.channel.ridefeed:
+    parent: logger.channel_base
+    arguments: ['ridefeed']
+
+
+  ridefeed.repository:
+    class: Drupal\ridefeed\RideFeed
+    arguments:
+      - '@atproto_client.atproto_client'
+      - '@entity_type.manager'
+      - '@logger.channel.ridefeed'
+      - '@datetime.time'
+ 
+  Drupal\ridefeed\Hook\RideFeedHooks:
+    class: Drupal\ridefeed\Hook\RideFeedHooks
+    arguments: 
+      - '@ridefeed.repository'
+      - '@datetime.time'
+      - '@date.formatter'
+      - '@logger.channel.ridefeed'
+
+  

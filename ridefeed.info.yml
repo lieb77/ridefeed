@@ -1,0 +1,7 @@
+name: 'Ride Feed'
+type: module
+description: 'Post my rides to Bluesky'
+package: Custom
+core_version_requirement: ^11
+dependencies:
+  - atproto_client:atproto_client
