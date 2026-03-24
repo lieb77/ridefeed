@@ -29,6 +29,7 @@ class RideFeed {
      * Posts a ride to the public Bluesky timeline.
      */
     public function postRideToTimeline(NodeInterface $node): mixed {
+        $this->logger->info("Starting postRideToTimeline");
         $rideDateRaw = $node->get('field_ridedate')->value;
         $textParts = [
             "🚲Lieb's Ride Log🚲",
@@ -67,6 +68,7 @@ class RideFeed {
         $response = $this->atprotoClient->createRecord($postRecord);
         
         if (isset($response->uri)) {
+        	$this->logger->info("Ride posted to @uri",["@uri" => $response->uri]);
             $this->createSyndicationEntity((int) $node->id(), $response->uri);
         }
         return $response;
@@ -83,13 +85,13 @@ class RideFeed {
             'type' => "entry",
         ];
 
-        $response = $this->atprotoClient->request('GET', $this->endpoints->getPostThread(), ['query' => ['uri' => $atUri]]);
+        $response = $this->atprotoClient->getPostThread($atUri);
 
         if (isset($response->thread->post)) {
             $post = $response->thread->post;
             if ($post->replyCount > 0) { $this->processReplies($response->thread->replies, $wmValues); }
             if ($post->likeCount > 0) { $this->processLikes($atUri, $wmValues); }
-            if ($post->repostCount > 0) { $this->processReposts($atUri, $wmValues); }
+           // if ($post->repostCount > 0) { $this->processReposts($atUri, $wmValues); }
         }
     }
 
@@ -126,7 +128,7 @@ class RideFeed {
     }
 
     private function processLikes(string $atUri, array $wmValues): void {
-        $response = $this->atprotoClient->request('GET', $this->endpoints->getLikes(), ['query' => ['uri' => $atUri]]);
+        $response = $this->atprotoClient->getLikes($atUri);
         foreach ($response->likes as $like) {
             $source = "https://bsky.app/profile/{$like->actor->handle}";
             $this->saveIfNew(array_merge($wmValues, [
@@ -140,20 +142,20 @@ class RideFeed {
         }
     }
 
-    private function processReposts(string $atUri, array $wmValues): void {
-        $response = $this->atprotoClient->request('GET', "/xrpc/app.bsky.feed.getRepostedBy", ['query' => ['uri' => $atUri]]);
-        foreach ($response->repostedBy as $actor) {
-            $source = "https://bsky.app/profile/{$actor->handle}";
-            $this->saveIfNew(array_merge($wmValues, [
-                'source' => $source,
-                'property' => 'repost-of',
-                'author_name' => $actor->displayName ?: $actor->handle,
-                'author_url' => $source,
-                'author_photo' => $actor->avatar ?? '',
-                'status' => 1,
-            ]));
-        }
-    }
+   //  private function processReposts(string $atUri, array $wmValues): void {
+//         $response = $this->atprotoClient->request('GET', "/xrpc/app.bsky.feed.getRepostedBy", ['query' => ['uri' => $atUri]]);
+//         foreach ($response->repostedBy as $actor) {
+//             $source = "https://bsky.app/profile/{$actor->handle}";
+//             $this->saveIfNew(array_merge($wmValues, [
+//                 'source' => $source,
+//                 'property' => 'repost-of',
+//                 'author_name' => $actor->displayName ?: $actor->handle,
+//                 'author_url' => $source,
+//                 'author_photo' => $actor->avatar ?? '',
+//                 'status' => 1,
+//             ]));
+//         }
+//     }
 
     private function saveIfNew(array $values): void {
         $storage = $this->entityTypeManager->getStorage('indieweb_webmention');
@@ -187,6 +189,7 @@ class RideFeed {
             'url' => $url,
             'at_uri' => $atUri,
         ])->save();
+        $this->logger->info("Syndication saved for node @nid",["@nid" => $nid]);
     }
 
  
