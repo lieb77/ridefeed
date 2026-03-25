@@ -4,42 +4,15 @@ declare(strict_types=1);
 
 namespace Drupal\ridefeed\Hook;
 
-use Drupal\Component\Datetime\TimeInterface;
-use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Hook\Attribute\Hook;
-use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\Core\State\StateInterface;
-use Drupal\node\NodeInterface;
-use Drupal\ridefeed\RideFeed;
 
 /**
  * Provides hook implementations for the PDS Sync module.
  */
 class RideFeedHooks {
-
-    /**
-     * Constructs a new PdsSyncHooks instance.
-     *
-     * @param \Drupal\ridefeed\RideFeed $rideFeed
-     *   The PDS repository.
-     * @param \Drupal\Core\State\StateInterface $state
-     *   The state service.
-     * @param \Drupal\Component\Datetime\TimeInterface $time
-     *   The time service.
-     * @param \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter
-     *   The date formatter service.
-     * @param \Drupal\Core\Logger\LoggerChannelInterface $logger
-     *   The logger channel.
-     */
-    public function __construct(
-        protected RideFeed $rideFeed,
-        protected TimeInterface $time,
-        protected DateFormatterInterface $dateFormatter,
-        protected LoggerChannelInterface $logger,
-    ) {}
 
     /**
      * Implements hook_help().
@@ -74,21 +47,7 @@ class RideFeedHooks {
         return NULL;
     }
 
-    /**
-     * Implements hook_node_insert().
-     *
-     * @param \Drupal\node\NodeInterface $node
-     *   The node being inserted.
-     */
-    #[Hook('node_insert')]
-    public function onRideInsert(NodeInterface $node): void
-    {
-        if ($node->bundle() !== 'ride') {
-            return;
-        }
-        $this->rideFeed->postRideToTimeline($node);
-    }
-
+  
    
     /**
      * Implements hook_entity_base_field_info().
@@ -117,21 +76,5 @@ class RideFeedHooks {
         return NULL;
     }
 
-    /**
-     * Implements hook_cron().
-     */
-    #[Hook('cron')]
-    public function cron(): void
-    {
-        $syndications = $this->rideFeed->getSyndications();
-
-        foreach ($syndications as $syndication) {
-            if (isset($syndication['at_uri'])) {
-                $this->logger->info("Checking syndication of node @nid for webmentions.", ['@nid' => $syndication['nid']]);
-                $this->rideFeed->checkForWebmentions($syndication);
-            }
-        }
-    }
-
-}
+}  
 

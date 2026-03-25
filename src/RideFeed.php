@@ -74,6 +74,21 @@ class RideFeed {
         return $response;
     }
 
+	public function getWebmentions(){
+
+		 $syndications = $this->getSyndications();
+
+		foreach ($syndications as $syndication) {
+			if (!empty($syndication['at_uri'])) {
+			$this->logger->info("Checking syndication of node @nid for webmentions.", [
+				'@nid' => $syndication['nid']
+			]);
+			$this->checkForWebmentions($syndication);
+			}
+		}
+	}
+
+
     public function checkForWebmentions(array $syndication): void {
         $atUri = $syndication['at_uri'];
         $node = $this->entityTypeManager->getStorage('node')->load($syndication['nid']);

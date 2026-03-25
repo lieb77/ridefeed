@@ -13,12 +13,5 @@ services:
       - '@logger.channel.ridefeed'
       - '@datetime.time'
  
-  Drupal\ridefeed\Hook\RideFeedHooks:
-    class: Drupal\ridefeed\Hook\RideFeedHooks
-    arguments: 
-      - '@ridefeed.repository'
-      - '@datetime.time'
-      - '@date.formatter'
-      - '@logger.channel.ridefeed'
 
   
