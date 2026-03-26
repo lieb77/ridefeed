@@ -27,7 +27,7 @@ final class RidePostAction extends ActionBase implements ContainerFactoryPluginI
         array $configuration,
         $plugin_id,
         $plugin_definition,
-        protected RideFeed $ridefeed,
+        protected RideFeed $rideFeed,
     ) {
         parent::__construct($configuration, $plugin_id, $plugin_definition);
     }
